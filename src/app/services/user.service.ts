@@ -5,6 +5,8 @@ import {AngularFireAuth} from '@angular/fire/auth';
 import {AngularFirestore, AngularFirestoreDocument} from '@angular/fire/firestore';
 import { auth } from 'firebase/app';
 import {User} from '../models/user';
+import {environment} from '../../environments/environment';
+import {HttpClient, HttpHeaders} from '@angular/common/http';
 
 
 @Injectable({
@@ -13,7 +15,13 @@ import {User} from '../models/user';
 export class UserService {
   userData: any; // Save logged in user data
   user: any = {};
+  result: any = {};
+
+  // tslint:disable-next-line:variable-name
+  url_receiver: any;
+
   constructor(
+      public http: HttpClient,
       public afs: AngularFirestore,   // Inject Firestore service
       public afAuth: AngularFireAuth, // Inject Firebase auth service
       public router: Router,
@@ -52,11 +60,12 @@ export class UserService {
             emailVerified: result.user.emailVerified,
             refreshToken: result.user.refreshToken
           };
+          console.log(result);
           console.log(this.user);
           this.ngZone.run(() => {
             this.router.navigate(['/profile']);
           });
-          this.SetUserData(result.user);
+          this.SetUserData(result);
         }).catch((error) => {
           window.alert(error);
         });
@@ -65,19 +74,27 @@ export class UserService {
   /* Setting up user data when sign in with username/password,
   sign up with username/password and sign in with social auth
   provider in Firestore database using AngularFirestore + AngularFirestoreDocument service */
-  SetUserData(user) {
-    const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
-    const userData: User = {
-      uid: user.uid,
-      email: user.email,
-      displayName: user.displayName,
-      photoURL: user.photoURL,
-      emailVerified: user.emailVerified
-    };
-    return userRef.set(userData, {
-      merge: true
+  SetUserData(user, relUrl = '/es/api/v1/accounts/test-token/facebook/') {
+    // const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
+    return new Promise((resolve, reject) => {
+      this.url_receiver = relUrl;
+      const userData: User = {
+        uid: user.uid,
+        email: user.email,
+        displayName: user.displayName,
+        photoURL: user.photoURL,
+        emailVerified: user.emailVerified
+      };
+      const headers = new HttpHeaders();
+      this.http.post(environment.domain + relUrl, user, {headers}).subscribe(res => {
+        console.log(res);
+      }, error => {console.log(error); });
     });
+   /* return userRef.set(userData, {
+      merge: true
+    });*/
   }
+
 
   // Sign out
   signOut() {
