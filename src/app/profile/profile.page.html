@@ -1,0 +1,28 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>profile</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-row>
+    <ion-col style="display:flex; justify-content: center;">
+      <ion-img [src]="userService.user.photoURL" style="width: 75px"></ion-img>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col style="text-align: center">
+      <ion-text>{{userService.user.displayName}}</ion-text>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col style="text-align: center">
+      <ion-text>{{userService.user.email}}</ion-text>
+    </ion-col>
+  </ion-row>
+  <ion-row>
+    <ion-col>
+      <ion-button expand="full" color="warning" (click)="userService.signOut()">Logout</ion-button>
+    </ion-col>
+  </ion-row>
+</ion-content>

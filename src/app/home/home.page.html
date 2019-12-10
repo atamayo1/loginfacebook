@@ -1,14 +1,23 @@
 <ion-header>
   <ion-toolbar>
     <ion-title>
-      Ionic Blank
+      Welcome
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <div class="ion-padding">
-    The world is your oyster.
-    <p>If you get lost, the <a target="_blank" rel="noopener" href="https://ionicframework.com/docs/">docs</a> will be your guide.</p>
+
+<ion-content class="facebook-bg">
+  <div class="main">
+    <ion-row>
+      <ion-col style="text-align: center">
+        <ion-text class="title">Ionic 4 Facebook Auth Starter 2019</ion-text>
+      </ion-col>
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="full" color="primary" (click)="userService.FacebookAuth()">Login with Facebook</ion-button>
+      </ion-col>
+    </ion-row>
   </div>
 </ion-content>
