@@ -15,6 +15,7 @@ export const environment = {
     measurementId: 'G-XGKRVVGYTQ'
   },
   domain: 'http://192.168.1.161:8000',
+  relUrl: '/es/api/v1/accounts/test-token/facebook/'
 };
 
 /*

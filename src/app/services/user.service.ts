@@ -60,35 +60,73 @@ export class UserService {
             emailVerified: result.user.emailVerified,
             refreshToken: result.user.refreshToken
           };
-          console.log(result);
+          console.log(result.user);
           console.log(this.user);
           this.ngZone.run(() => {
             this.router.navigate(['/profile']);
           });
-          this.SetUserData(result);
+          this.SetUserData(result.user, environment.relUrl).then(r => console.log(r));
         }).catch((error) => {
           window.alert(error);
         });
   }
 
+
+  postFormToken(user, relUrl) {
+    return new Promise((resolve, reject) => {
+      this.url_receiver = relUrl;
+      const headers = new HttpHeaders({
+        Authorization: '' + user.accessToken
+      });
+
+      this.http.post(environment.domain + this.url_receiver, user, {headers})
+          .subscribe(res => {
+            resolve(res);
+          }, (err) => {
+            if (err.error.code === 'token_not_valid' && err.status === 401) {
+              user.refreshToken.then(() => {
+                this.postFormToken(user, this.url_receiver).then(res => {
+                  resolve(res);
+                  // tslint:disable-next-line:no-shadowed-variable
+                }).catch((err) => {
+                  reject(err);
+                });
+              });
+            } else {
+              reject(err);
+            }
+          });
+    });
+    /*'Accept': 'application/json',
+      'Content-Type': 'application/json',*/
+  }
+
   /* Setting up user data when sign in with username/password,
   sign up with username/password and sign in with social auth
   provider in Firestore database using AngularFirestore + AngularFirestoreDocument service */
-  SetUserData(user, relUrl = '/es/api/v1/accounts/test-token/facebook/') {
+  SetUserData(user, relUrl) {
     // const userRef: AngularFirestoreDocument<any> = this.afs.doc(`users/${user.uid}`);
     return new Promise((resolve, reject) => {
       this.url_receiver = relUrl;
-      const userData: User = {
+    /*  const userData: User = {
         uid: user.uid,
         email: user.email,
         displayName: user.displayName,
         photoURL: user.photoURL,
         emailVerified: user.emailVerified
-      };
+      }; */
       const headers = new HttpHeaders();
-      this.http.post(environment.domain + relUrl, user, {headers}).subscribe(res => {
-        console.log(res);
-      }, error => {console.log(error); });
+      headers.append('Accept', 'application/json');
+      headers.append('Content-Type', 'application/json' );
+      const formData = new FormData();
+      formData.append('user', JSON.stringify(user));
+
+      this.http.post(environment.domain + this.url_receiver, formData, { headers }).subscribe(res => {
+        resolve(res);
+      }, error => {
+        console.log(error);
+        reject(error);
+      });
     });
    /* return userRef.set(userData, {
       merge: true
